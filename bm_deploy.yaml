@@ -16,6 +16,8 @@ kind: BareMetalHost
 metadata:
   name: nfv02
   namespace: openshift-machine-api
+  labels:
+    app: openstack
 spec:
   online: false
   bootMACAddress: "E4:43:4B:4D:ED:B9"

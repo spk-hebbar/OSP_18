@@ -24,9 +24,11 @@ cp -f $HOME/OSP_18/install_yamls_changes/gen* $HOME/install_yamls/scripts/
 
 #OSP Controlplane Network isolation like Controlplane, storage,  internal api & tenant CR’s.
 #Need to update files for network isolation with proper subnets and VLAN details based on your cluster and switch configuration
-wget https://github.com/openstack-k8s-operators/infra-operator/blob/main/config/samples/network_v1beta1_netconfig.yaml && cp -f ./network_v1beta1_netconfig.yaml $HOME/install_yamls/netconfig.yaml
-wget https://github.com/openstack-k8s-operators/infra-operator/blob/main/config/samples/network_v1beta1_dnsdata.yaml &&  cp -f ./network_v1beta1_dnsdata.yaml $HOME/install_yamls/network_dnsdata.yaml
-wget https://github.com/openstack-k8s-operators/infra-operator/blob/main/config/samples/network_v1beta1_dnsmasq.yaml && cp -f network_v1beta1_dnsmasq.yaml $HOME/install_yamls/network_dns_masq.yaml
+wget -O - https://github.com/openstack-k8s-operators/infra-operator/raw/main/config/samples/network_v1beta1_netconfig.yaml | yq eval '.' - > $HOME/install_yamls/netconfig.yaml
+
+wget -O - https://github.com/openstack-k8s-operators/infra-operator/raw/main/config/samples/network_v1beta1_dnsdata.yaml | yq eval '.' - > $HOME/install_yamls/network_dnsdata.yaml
+
+wget -O - https://github.com/openstack-k8s-operators/infra-operator/raw/main/config/samples/network_v1beta1_dnsmasq.yaml | yq eval '.' - > $HOME/install_yamls/network_dns_masq.yaml
 
 
 make -C $HOME/install_yamls/devsetup/ download_tools &&
@@ -34,3 +36,13 @@ make -C $HOME/install_yamls/ crc_storage input openstack_wait &&
 make -C $HOME/install_yamls/ netconfig_deploy dns_deploy &&
 make -C $HOME/install_yamls/ openstack_wait_deploy
 cd -
+
+
+oc patch openstackcontrolplane openstack-galera-network-isolation --type=merge --patch '
+spec:
+  neutron:
+    template:
+      customServiceConfig: |
+        [ml2]
+        mechanism_drivers = ovn
+'

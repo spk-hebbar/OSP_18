@@ -5,11 +5,12 @@ metadata:
   name: cpu-pinning-nova
 data:
   04-cpu-pinning-nova.conf: |
+
+    [DEFAULT]
+    reserved_host_memory_mb = 4096
     [compute]
     cpu_shared_set = 0-3,24-27
     cpu_dedicated_set = 8-23,32-47
-    reserved_host_memory_mb = 4096
-
 ---
 apiVersion: dataplane.openstack.org/v1beta1
 kind: OpenStackDataPlaneService
