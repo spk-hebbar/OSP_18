@@ -21,7 +21,7 @@ spec:
     - telemetry
   baremetalSetTemplate:
     bmhLabelSelector:
-      app: openstack
+      app: dpdk
     ctlplaneInterface: eno2
     cloudUserName: cloud-admin
     provisioningInterface: enp1s0
@@ -89,7 +89,7 @@ spec:
                 name: dpdk1
                 members:
                 - type: interface
-                  name: eno1
+                  name: eno2
             - type: ovs_user_bridge
               name: br-link2
               use_dhcp: false
@@ -99,7 +99,7 @@ spec:
                 name: dpdk2
                 members:
                 - type: interface
-                  name: eno4
+                  name: eno1
          # These vars are for the network config templates themselves and are
          # considered EDPM network defaults.
          neutron_physical_bridge_name: br-ex

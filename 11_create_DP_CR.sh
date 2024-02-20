@@ -3,6 +3,8 @@
 
 oc create -f openstack_dataplane_nodeset_ovsdpdk.yaml 
 
+oc create -f openstack_dataplane_nodeset_sriov.yaml
+
 oc create -f openstack_dataplane_deployment.yaml 
 
 #Provisioning should start on EDPM node

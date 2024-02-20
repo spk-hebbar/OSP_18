@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cpu-pinning-nova
+  name: cpu-pinning-nova-dpdk
 data:
-  04-cpu-pinning-nova.conf: |
+  25-cpu-pinning-nova.conf: |
 
     [DEFAULT]
     reserved_host_memory_mb = 4096
@@ -19,7 +19,7 @@ metadata:
 spec:
   label: nova-custom-ovsdpdk
   configMaps:
-    - cpu-pinning-nova
+    - cpu-pinning-nova-dpdk
   secrets:
     - nova-cell1-compute-config
     - nova-migration-ssh-key

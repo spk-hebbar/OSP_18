@@ -5,3 +5,4 @@ metadata:
 spec:
   nodeSets:
     - openstack-edpm-ovsdpdk
+    - openstack-edpm-sriov

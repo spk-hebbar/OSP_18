@@ -1,5 +1,17 @@
 #!/bin/bash
 
+cat <<EOF | oc apply -f -
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: baremetalset-password-secret
+    namespace: openstack
+    type: Opaque
+    data:
+      NodeRootPassword: cmVkaGF0Cg==
+EOF
+
 SSH_ALGORITHM=${SSH_ALGORITHM:-"rsa"}
 SSH_KEY_FILE=${SSH_KEY_FILE:-"ansibleee-ssh-key-id_rsa"}
 SSH_KEY_SIZE=${SSH_KEY_SIZE:-"4096"}

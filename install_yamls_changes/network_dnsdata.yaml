@@ -22,6 +22,9 @@ spec:
   - ip: 172.17.0.101
     hostnames:
     - edpm-compute-1.internalapi
+  - ip: 192.168.10.101
+    hostnames:
+    - edpm-compute-1.external
   - ip: 172.18.0.101
     hostnames:
     - edpm-compute-1.storage

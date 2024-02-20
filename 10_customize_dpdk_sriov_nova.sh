@@ -3,9 +3,9 @@ cat > custom-nova-dpdk.yaml<<EOL
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cpu-pinning-nova
+  name: cpu-pinning-nova-dpdk
 data:
-  04-cpu-pinning-nova.conf: |
+  25-cpu-pinning-nova.conf: |
 
     [DEFAULT]
     reserved_host_memory_mb = 4096
@@ -20,7 +20,7 @@ metadata:
 spec:
   label: nova-custom-ovsdpdk
   configMaps:
-    - cpu-pinning-nova
+    - cpu-pinning-nova-dpdk
   secrets:
     - nova-cell1-compute-config
     - nova-migration-ssh-key
@@ -28,6 +28,53 @@ spec:
 EOL
 
 oc apply -f custom-nova-dpdk.yaml
+
+cat > custom-nova-sriov.yaml<<EOL
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cpu-pinning-nova-sriov
+data:
+  25-cpu-pinning-nova.conf: |
+
+    [DEFAULT]
+    reserved_host_memory_mb = 4096
+    [compute]
+    cpu_shared_set = 0-3,24-27
+    cpu_dedicated_set = 8-23,32-47
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sriov-nova
+data:
+  03-sriov-nova.conf: |
+
+    [libvirt]
+    cpu_power_management=false
+
+    [pci]
+    passthrough_whitelist = { "devname":"eno1", "physical_network":"sriov1", "trusted":"true" }
+    passthrough_whitelist = { "devname":"eno2", "physical_network":"sriov2", "trusted":"true" }
+---
+apiVersion: dataplane.openstack.org/v1beta1
+kind: OpenStackDataPlaneService
+metadata:
+  name: nova-custom-sriov
+spec:
+  label: dataplane-deployment-nova-custom-sriov
+  configMaps:
+    - cpu-pinning-nova-sriov
+    - sriov-nova
+  secrets:
+    - nova-cell1-compute-config
+    - nova-migration-ssh-key
+  playbook: osp.edpm.nova
+EOL
+oc apply -f custom-nova-sriov.yaml
+
 
 cat >repo-setup.yaml<<EOL
 ---
