@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+set -xe
 #Run this script as ". 07_osp_controlplane_setup.sh" to apply env to parent shell
 
 export BMH_NAMESPACE=openshift-machine-api
@@ -50,7 +50,7 @@ spec:
         vhost_sock_dir = /var/lib/vhost_sockets
         enable_distributed_floating_ip=False
         [ml2_type_vlan]
-        network_vlan_ranges = dpdk1:101:102,dpdk2:103:104,sriov1:105:106,sriov2:107:108
+        network_vlan_ranges = dpdk1:113:114,dpdk2:115:116,sriov1:101:102,sriov2:103:104
   ovn:
     template:
       ovnController:

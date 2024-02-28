@@ -4,9 +4,8 @@ metadata:
   name: openstack-edpm-ovsdpdk
 spec:
   services:
-    - repo-setup
-    - download-cache
     - bootstrap
+    - download-cache
     - reboot-os
     - configure-ovs-dpdk
     - configure-network
@@ -18,8 +17,10 @@ spec:
     - neutron-metadata
     - libvirt
     - nova-custom-ovsdpdk
-    - telemetry
+      #- telemetry
   baremetalSetTemplate:
+    osImage: edpm-hardened-uefi.qcow2
+    osContainerImageUrl: registry.access.redhat.com/rhosp-dev-preview/edpm-hardened-uefi-rhel9:18.0.0-9
     bmhLabelSelector:
       app: dpdk
     ctlplaneInterface: eno2
@@ -48,6 +49,11 @@ spec:
     managementNetwork: ctlplane
     ansible:
       ansibleVars:
+         edpm_bootstrap_command: |
+           subscription-manager register --username=rh-ee-spk --password=Redhat27 --consumerid=02287374-ee5e-47c9-8a64-508f9d767af3
+           subscription-manager release --set=9.2
+           subscription-manager repos --disable=*
+           subscription-manager repos --enable=rhel-9-for-x86_64-baseos-eus-rpms --enable=rhel-9-for-x86_64-appstream-eus-rpms --enable=rhel-9-for-x86_64-highavailability-eus-rpms --enable=openstack-17.1-for-rhel-9-x86_64-rpms --enable=fast-datapath-for-rhel-9-x86_64-rpms  --enable=rhceph-6-tools-for-rhel-9-x86_64-rpms
          edpm_network_config_template: |
             ---
             network_config:
@@ -89,29 +95,33 @@ spec:
                 name: dpdk1
                 members:
                 - type: interface
-                  name: eno2
+                  name: eno1
             - type: ovs_user_bridge
               name: br-link2
               use_dhcp: false
               mtu: 9000
-              members:
-              - type: ovs_dpdk_port
-                name: dpdk2
-                members:
-                - type: interface
-                  name: eno1
+                #members:
+                #- type: ovs_dpdk_port
+                #name: dpdk2
+                #members:
+                #- type: interface
+                #  name: eno1
          # These vars are for the network config templates themselves and are
          # considered EDPM network defaults.
          neutron_physical_bridge_name: br-ex
-         neutron_public_interface_name: eth0
+         neutron_public_interface_name: eno1
          registry_url: quay.io/podified-antelope-centos9
          image_tag: current-podified
          image_prefix: openstack
          edpm_chrony_ntp_servers:
            - pool.ntp.org
+
          # edpm_nodes_validation
          edpm_nodes_validation_validate_controllers_icmp: false
          edpm_nodes_validation_validate_gateway_icmp: false
+         ctlplane_dns_nameservers:
+           - 192.168.122.1
+         dns_search_domains: []
          # edpm nfv ovs dpdk config
          edpm_kernel_args: "default_hugepagesz=1GB hugepagesz=1G hugepages=64 iommu=pt intel_iommu=on tsx=off isolcpus=2-11,14-23"
          edpm_tuned_profile: "cpu-partitioning"
@@ -122,7 +132,7 @@ spec:
          edpm_ovs_dpdk_memory_channels: "4"
          edpm_ovs_dpdk_vhost_postcopy_support: "true"
          edpm_ovn_bridge_mappings: ['dpdk2:br-link2','dpdk1:br-link1']
-         edpm_enable_chassis_gw: true
+           #         edpm_enable_chassis_gw: true
          gather_facts: false
          enable_debug: false
          # edpm firewall, change the allowed CIDR if needed

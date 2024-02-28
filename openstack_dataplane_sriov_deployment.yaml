@@ -1,0 +1,7 @@
+apiVersion: dataplane.openstack.org/v1beta1
+kind: OpenStackDataPlaneDeployment
+metadata:
+  name: openstack-edpm-sriov-deployment
+spec:
+  nodeSets:
+    - openstack-edpm-sriov

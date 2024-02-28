@@ -5,7 +5,7 @@ cat <<EOF | oc apply -f -
 apiVersion: v1
 kind: Secret
 metadata:
-  name: baremetalset-password-secret
+    name: baremetalset-password-secret
     namespace: openstack
     type: Opaque
     data:

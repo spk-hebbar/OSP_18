@@ -56,8 +56,8 @@ data:
     cpu_power_management=false
 
     [pci]
-    passthrough_whitelist = { "devname":"eno1", "physical_network":"sriov1", "trusted":"true" }
-    passthrough_whitelist = { "devname":"eno2", "physical_network":"sriov2", "trusted":"true" }
+    passthrough_whitelist = { "devname":"enp4s0f0np0", "physical_network":"sriov1", "trusted":"true" }
+    passthrough_whitelist = { "devname":"enp4s0f1np1", "physical_network":"sriov2", "trusted":"true" }
 ---
 apiVersion: dataplane.openstack.org/v1beta1
 kind: OpenStackDataPlaneService
@@ -76,41 +76,41 @@ EOL
 oc apply -f custom-nova-sriov.yaml
 
 
-cat >repo-setup.yaml<<EOL
----
-apiVersion: dataplane.openstack.org/v1beta1
-kind: OpenStackDataPlaneService
-metadata:
-  labels:
-    app.kubernetes.io/name: openstackdataplaneservice
-    app.kubernetes.io/instance: openstackdataplaneservice-repo-setup
-    app.kubernetes.io/part-of: dataplane-operator
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: install_yamls
-  name: repo-setup
-spec:
-  label: repo-setup
-  play: |
-    - hosts: all
-      strategy: linear
-      tasks:
-        - name: Enable podified-repos
-          become: true
-          ansible.builtin.shell: |
-            set -euxo pipefail
-            pushd /var/tmp
-            curl -sL https://github.com/openstack-k8s-operators/repo-setup/archive/refs/heads/main.tar.gz | tar -xz
-            pushd repo-setup-main
-            python3 -m venv ./venv
-            PBR_VERSION=0.0.0 ./venv/bin/pip install ./
-            # This is required for FIPS enabled until trunk.rdoproject.org
-            # is not being served from a centos7 host, tracked by
-            # https://issues.redhat.com/browse/RHOSZUUL-1517
-            update-crypto-policies --set FIPS:NO-ENFORCE-EMS
-            ./venv/bin/repo-setup current-podified -b antelope
-            popd
-            rm -rf repo-setup-main
-EOL
-
-oc create -f repo-setup.yaml
-
+#cat >repo-setup.yaml<<EOL
+#---
+#apiVersion: dataplane.openstack.org/v1beta1
+#kind: OpenStackDataPlaneService
+#metadata:
+#  labels:
+#    app.kubernetes.io/name: openstackdataplaneservice
+#    app.kubernetes.io/instance: openstackdataplaneservice-repo-setup
+#    app.kubernetes.io/part-of: dataplane-operator
+#    app.kubernetes.io/managed-by: kustomize
+#    app.kubernetes.io/created-by: install_yamls
+#  name: repo-setup
+#spec:
+#  label: repo-setup
+#  play: |
+#    - hosts: all
+#      strategy: linear
+#      tasks:
+#        - name: Enable podified-repos
+#          become: true
+#          ansible.builtin.shell: |
+#            set -euxo pipefail
+#            pushd /var/tmp
+#            curl -sL https://github.com/openstack-k8s-operators/repo-setup/archive/refs/heads/main.tar.gz | tar -xz
+#            pushd repo-setup-main
+#            python3 -m venv ./venv
+#            PBR_VERSION=0.0.0 ./venv/bin/pip install ./
+#            # This is required for FIPS enabled until trunk.rdoproject.org
+#            # is not being served from a centos7 host, tracked by
+#            # https://issues.redhat.com/browse/RHOSZUUL-1517
+#            update-crypto-policies --set FIPS:NO-ENFORCE-EMS
+#            ./venv/bin/repo-setup current-podified -b antelope
+#            popd
+#            rm -rf repo-setup-main
+#EOL
+#
+#oc create -f repo-setup.yaml
+#
