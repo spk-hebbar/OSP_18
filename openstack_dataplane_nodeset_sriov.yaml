@@ -29,8 +29,8 @@ spec:
       name: baremetalset-password-secret
       namespace: openstack
   nodes:
-    edpm-compute-1:
-      hostName: edpm-compute-1
+    edpm-compute-0:
+      hostName: edpm-computesriov-0
   networkAttachments:
     - ctlplane
   nodeTemplate:
@@ -65,7 +65,7 @@ spec:
               use_dhcp: false
               dns_servers: ["192.168.122.80"]
               domain: []
-              fixedIP: 192.168.122.101
+              fixedIP: 192.168.122.100
               routes:
               - ip_netmask: 169.254.169.254/32
                 next_hop: 192.168.122.1
@@ -75,17 +75,22 @@ spec:
               device: eno2
               vlan_id: 111
               addresses:
-              - ip_netmask: 172.17.0.101/24
+              - ip_netmask: 172.17.0.100/24
             - type: vlan
               device: eno2
               vlan_id: 112
               addresses:
-              - ip_netmask: 172.18.0.101/24
-            - type: vlan
-              vlan_id: 113
-              device: eno1
+              - ip_netmask: 172.18.0.100/24
+            - type: ovs_user_bridge
+              name: br-link0
+              use_dhcp: false
+              ovs_extra: "set port br-link0 tag=113"
               addresses:
-              - ip_netmask: 172.19.0.101/24
+              - ip_netmask: 172.19.0.100/24
+              mtu: 9000
+              members:
+              - type: interface
+                name: eno1
             - type: sriov_pf
               name: enp4s0f0np0
               use_dhcp: false
@@ -96,8 +101,8 @@ spec:
               numvfs: 5        
          # These vars are for the network config templates themselves and are
          # considered EDPM network defaults.
-         #neutron_physical_bridge_name: br-ex
-         #Neutron_public_interface_name: eno1
+         neutron_physical_bridge_name: external
+         neutron_public_interface_name: eno1
          registry_url: quay.io/podified-antelope-centos9
          image_tag: current-podified
          image_prefix: openstack
@@ -114,12 +119,11 @@ spec:
          edpm_tuned_profile: "cpu-partitioning"
          edpm_nova_libvirt_qemu_group: "hugetlbfs"
          edpm_tuned_isolated_cores: "2-11,14-23"
-
          gather_facts: false
          enable_debug: false
          # edpm firewall, change the allowed CIDR if needed
          edpm_sshd_configure_firewall: true
          edpm_sshd_allowed_ranges: ['192.168.122.0/24']
          # SELinux module
-         #   edpm_selinux_mode: enforcing
+         edpm_selinux_mode: enforcing
          edpm_neutron_sriov_agent_SRIOV_NIC_physical_device_mappings: 'sriov1:enp4s0f0np0,sriov2:enp4s0f1np1'

@@ -1,11 +1,7 @@
 #!/bin/bash
 
 
-oc create -f openstack_dataplane_nodeset_ovsdpdk.yaml 
-
 oc create -f openstack_dataplane_nodeset_sriov.yaml
-
-oc create -f openstack_dataplane_dpdk_deployment.yaml 
 
 oc create -f openstack_dataplane_sriov_deployment.yaml 
 

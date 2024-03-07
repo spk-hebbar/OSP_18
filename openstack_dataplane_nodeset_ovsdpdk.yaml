@@ -17,12 +17,12 @@ spec:
     - neutron-metadata
     - libvirt
     - nova-custom-ovsdpdk
-      #- telemetry
+    - telemetry
   baremetalSetTemplate:
     osImage: edpm-hardened-uefi.qcow2
     osContainerImageUrl: registry.access.redhat.com/rhosp-dev-preview/edpm-hardened-uefi-rhel9:18.0.0-9
     bmhLabelSelector:
-      app: dpdk
+      app: openstack
     ctlplaneInterface: eno2
     cloudUserName: cloud-admin
     provisioningInterface: enp1s0
@@ -31,7 +31,7 @@ spec:
       namespace: openstack
   nodes:
     edpm-compute-0:
-      hostName: edpm-compute-0
+      hostName: edpm-computedpdk-0
   networkAttachments:
     - ctlplane
   nodeTemplate:
@@ -84,31 +84,45 @@ spec:
               addresses:
               - ip_netmask: 172.18.0.100/24
             - type: ovs_user_bridge
-              name: br-link1
+              name: br-link0
               use_dhcp: false
-              ovs_extra: "set port br-link1 tag=113"
+              ovs_extra: "set port br-link0 tag=113"
               addresses:
               - ip_netmask: 172.19.0.100/24
+              mtu: 9000
+              members:
+              - type: interface
+                name: eno1
+            - type: ovs_user_bridge
+              name: br-link1
+              use_dhcp: false
               mtu: 9000
               members:
               - type: ovs_dpdk_port
                 name: dpdk1
                 members:
                 - type: interface
-                  name: eno1
+                  name: enp4s0f0np0
+                  mtu: 9000
+                  use_dhcp: false
+                  primary: true
             - type: ovs_user_bridge
               name: br-link2
               use_dhcp: false
               mtu: 9000
-                #members:
-                #- type: ovs_dpdk_port
-                #name: dpdk2
-                #members:
-                #- type: interface
-                #  name: eno1
+              members:
+              - type: ovs_dpdk_port
+                name: dpdk2
+                members:
+                - type: interface
+                  name: enp4s0f1np1
+                  mtu: 9000
+                  use_dhcp: false
+                  primary: true
+ 
          # These vars are for the network config templates themselves and are
          # considered EDPM network defaults.
-         neutron_physical_bridge_name: br-ex
+         neutron_physical_bridge_name: external
          neutron_public_interface_name: eno1
          registry_url: quay.io/podified-antelope-centos9
          image_tag: current-podified

@@ -10,22 +10,22 @@ data:
   password: Y2FsdmluCg==
 
 
----
-apiVersion: metal3.io/v1alpha1
-kind: BareMetalHost
-metadata:
-  name: nfv02
-  namespace: openshift-machine-api
-  labels:
-    app: dpdk
-spec:
-  online: false
-  bootMACAddress: "E4:43:4B:4D:ED:B9"
-  bmc:
-    address: "ipmi://10.9.20.139"
-    credentialsName: idrac-secret
-  bootMode: UEFI
-
+    #---
+    #apiVersion: metal3.io/v1alpha1
+    #kind: BareMetalHost
+    #metadata:
+    #  name: nfv02
+    #  namespace: openshift-machine-api
+    #  labels:
+    #    app: dpdk
+    #spec:
+    #  online: false
+    #  bootMACAddress: "E4:43:4B:4D:ED:B9"
+    #  bmc:
+    #    address: "ipmi://10.9.20.139"
+    #    credentialsName: idrac-secret
+    #  bootMode: UEFI
+    #
 ---
 apiVersion: metal3.io/v1alpha1
 kind: BareMetalHost
@@ -33,7 +33,7 @@ metadata:
   name: nfv03
   namespace: openshift-machine-api
   labels:
-    app: sriov
+    app: openstack
 spec:
   online: false
   bootMACAddress: "E4:43:4B:4D:D4:CB"

@@ -27,5 +27,5 @@ EOF_DNS
 
 #  Based on compute node static controlplane ip
 cat > /etc/NetworkManager/dnsmasq.d/01-compute.conf << EOF
-address=/nfv02/192.168.122.100
+address=/nfv03/192.168.122.100
 EOF

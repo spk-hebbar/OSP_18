@@ -3,6 +3,7 @@
 
 set -xe
 
+
 sudo dnf install qemu-kvm qemu-img -y
 sudo dnf install virt-manager libvirt libvirt-client libguestfs-tools-c -y
 sudo dnf install python3-libvirt virt-install -y
@@ -17,7 +18,7 @@ curl -LO "$url/$qcow2"
 sha256sum -c --ignore-missing SHA256SUM
 mv -v "$qcow2" rhel-guest-image-8.6.qcow2
 
-cp rhel-guest-image-8.6.qcow2 trex.qcow2
+#cp rhel-guest-image-8.6.qcow2 trex.qcow2
 cp rhel-guest-image-8.6.qcow2 testpmd.qcow2
 
 # set common options for both trex and testpmd
@@ -32,11 +33,11 @@ export LIBGUESTFS_BACKEND=direct
 #--run-command "curl -L https://content.mellanox.com/ofed/MLNX_OFED-5.7-1.0.2.0/MLNX_OFED_LINUX-5.7-1.0.2.0-rhel8.6-x86_64.tgz | tar -C /root -zx" \
 #--run-command "cd /root/MLNX_OFED* && ./mlnxofetinstall --without-fw-update" \
 
-virt-customize -a trex.qcow2 "$@" \
-    --install pciutils,driverctl,tmux,vim,python3,tuned-profiles-cpu-partitioning,tcpdump,httpd \
-    --run-command "curl -L -k https://trex-tgn.cisco.com/trex/release/v2.76.tar.gz | tar -C /root -zx && mv /root/v2.76 /root/trex" \
-    --run-command "systemctl enable httpd  && sed -i 's/#PermitRootLogin/PermitRootLogin/' /etc/ssh/sshd_config" \
-    --selinux-relabel
+#virt-customize -a trex.qcow2 "$@" \
+#    --install pciutils,driverctl,tmux,vim,python3,tuned-profiles-cpu-partitioning,tcpdump,httpd \
+#    --run-command "curl -L -k https://trex-tgn.cisco.com/trex/release/v2.76.tar.gz | tar -C /root -zx && mv /root/v2.76 /root/trex" \
+#    --run-command "systemctl enable httpd  && sed -i 's/#PermitRootLogin/PermitRootLogin/' /etc/ssh/sshd_config" \
+#    --selinux-relabel
 
 virt-customize -a testpmd.qcow2 "$@" \
     --install pciutils,dpdk,dpdk-tools,python3,numactl-devel,tuned-profiles-cpu-partitioning,driverctl,vim,tmux,tcpdump,httpd,meson,gcc,ninja-build,git,make \
@@ -45,7 +46,7 @@ virt-customize -a testpmd.qcow2 "$@" \
 
 
 mkdir images
-mv trex.qcow2 testpmd.qcow2 images
+mv testpmd.qcow2 images
 
 oc rsync images/ openstackclient:/home/cloud-admin
 

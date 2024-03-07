@@ -1,49 +1,49 @@
 #!/bin/bash
 
 oc rsh openstackclient
+=========================
+openstack image create --min-disk 10 --min-ram 8192 --disk-format qcow2 --container-format bare --file ~/testpmd.qcow2 --public image_testpmd
 
-openstack image create --min-disk 10 --min-ram 8192 --disk-format qcow2 --container-format bare --file ~/trex.qcow2 --public trex
-
-openstack image create --min-disk 10 --min-ram 8192 --disk-format qcow2 --container-format bare --file ~/testpmd.qcow2 --public testpmd
-openstack image list
-
-#Create provider1 network
-openstack network create --provider-network-type vlan --provider-physical-network datacentre1 --external provider1 --provider-segment 101
-
-#Create provider2 network
-openstack network create --provider-network-type vlan --provider-physical-network datacentre2 --external provider2 --provider-segment 103
-
-openstack network list
-
-#Create subnet for provider
-openstack subnet create --subnet-range 172.16.101.0/24 --network provider1  provider1-subnet
-openstack subnet create --subnet-range 172.16.102.0/24 --network provider2  provider2-subnet
-
-openstack subnet list
-
-#Create flavor
-openstack flavor create  --ram 16392 --disk 20 --vcpus 4 testpmd
-openstack flavor set --property  hw:mem_page_size=any --property hw:cpu_policy=dedicated --property hw:emulator_threads_policy=share testpmd
-
-openstack flavor create --ram 16392 --disk 10 --vcpu 8 trex
-openstack flavor set --property  hw:mem_page_size=large --property hw:cpu_policy=dedicated --property hw:emulator_threads_policy=share trex
-
-
-openstack flavor list
-
-openstack compute service list
-openstack host list
-openstack hypervisor list
+openstack flavor create  --ram 16392 --disk 20 --vcpus 4 flavor_testpmd
+openstack flavor set --property  hw:mem_page_size=any --property hw:cpu_policy=dedicated --property hw:emulator_threads_policy=share flavor_testpmd
 
 openstack keypair create key >key.pem
 chmod 600 key.pem
 
-#trex is run on compute-1 and testpmd is run on Compute-0/Computedpdk-0
-openstack server create --key key --image testpmd --network provider1 --network provider2 --flavor testpmd vm-testpmd --availability-zone nova:compute-0.localdomain
+#Provider network1
+openstack network create --internal --provider-network-type vlan --provider-physical-network data1 --provider-segment xxx --disable-port-security network1
+neutron subnet-create network1 6.6.6.0/24 --disable-dhcp --name subnet1
+openstack port create --network network1 --vnic-type direct --mac-address f8:f2:1e:03:bf:f4 --binding-profile '{"capabilities": ["switchdev"]}' --no-security-group --disable-port-security vlan1
 
-openstack server create  --key key --image trex --network provider1 --network provider2 --flavor trex vm-trex --availability-zone nova:compute-1.localdomain
+#Provider network2
+openstack network create --internal --provider-network-type vlan --provider-physical-network data2 --provider-segment yyy --disable-port-security network2
+neutron subnet-create network2 9.9.9.0/24 --disable-dhcp --name subnet2
+openstack port create --network network2 --vnic-type direct --mac-address f8:f2:1e:03:bf:f4 --binding-profile '{"capabilities": ["switchdev"]}' --no-security-group --disable-port-security vlan2
+
+#GENEVE -- tenant network
+openstack network create --internal --provider-network-type geneve Geneve
+neutron subnet-create Geneve 7.7.7.0/24 --name genevesub
+openstack port create --network Geneve --vnic-type direct --mac-address f8:f2:1e:03:bf:f9 --binding-profile '{"capabilities": ["switchdev"]}' geneveport
+
+#External network
+openstack network create --external --provider-physical-network external --provider-network-type vlan --provider-segment 101 external
+openstack subnet create --gateway 10.10.54.100 --network external --subnet-range 10.10.54.0/24  --dhcp --dns-nameserver 8.8.8.8 --allocation-pool start=10.10.54.101,end=10.10.54.200 external_subnet
+
+openstack router create router1
+neutron router-gateway-set router1 external
+openstack router add subnet router1 subnet1
+openstack router add subnet router1 subnet2
+openstack router add subnet router1 genevesub
+
+openstack port list
+
+#Update port-id of vlan1, vlan2, geneveport
+openstack server create --flavor flavor_testpmd --image image_testpmd --nic port-id=d4c75bcd-b0ab-4cb4-9683-729c83e2a564 --nic port-id=d4c75bcd-b0ab-4cb4-9683-729c83e2a564 --nic port-id=d4c75bcd-b0ab-4cb4-9683-729c83e2a564 --key-name key --availability-zone nova:computesriov-0.localdomain vm_testpmd
 
 
+openstack flavor list
+openstack compute service list
+openstack host list
+openstack hypervisor list
 openstack server list
-openstack server show vm-testpmd
-openstack server show vm-trex
+openstack server show vm_testpmd

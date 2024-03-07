@@ -37,34 +37,4 @@ make -C $HOME/install_yamls/ netconfig_deploy dns_deploy && sleep 3 &&
 make -C $HOME/install_yamls/ openstack_wait_deploy
 cd -
 
-oc patch openstackcontrolplane openstack-galera-network-isolation --type=merge --patch '
-spec:
-  neutron:
-    template:
-      customServiceConfig: |
-        [DEFAULT]
-        global_physnet_mtu = 9000
-        [ml2]
-        mechanism_drivers = ovn,sriovnicswitch
-        [ovn]
-        vhost_sock_dir = /var/lib/vhost_sockets
-        enable_distributed_floating_ip=False
-        [ml2_type_vlan]
-        network_vlan_ranges = dpdk1:113:114,dpdk2:115:116,sriov1:101:102,sriov2:103:104
-  ovn:
-    template:
-      ovnController:
-        nicMappings: {"datacentre":"enp4s0"}
-'
-
-oc patch openstackcontrolplane openstack-galera-network-isolation  -n openstack --type=merge --patch '
-spec:
-  nova:
-    template:
-      schedulerServiceTemplate:
-        customServiceConfig: |
-          [filter_scheduler]
-          enabled_filters = AvailabilityZoneFilter, ComputeFilter, ComputeCapabilitiesFilter, ImagePropertiesFilter, ServerGroupAntiAffinityFilter, ServerGroupAffinityFilter, PciPassthroughFilter, AggregateInstanceExtraSpecsFilter
-          available_filters = nova.scheduler.filters.all_filters
-'
 

@@ -10,10 +10,11 @@ make -C $HOME/dev-scripts requirements configure
 #If you get an error related to SSH public key, copy them manually to the required file
 
 #If you get an error like a network already exists, then we need to delete the default network.
-make -C $HOME/dev-scripts/ clean
-sudo virsh net-destroy default && sudo virsh net-undefine default
-make -C $HOME/dev-scripts requirements configure
-
+if [ $? -ne 0 ]; then
+	make -C $HOME/dev-scripts/ clean
+	sudo virsh net-destroy default && sudo virsh net-undefine default
+	make -C $HOME/dev-scripts requirements configure
+fi
 
 echo -e "DEVICE=external\nTYPE=Bridge\nONBOOT=yes\nBOOTPROTO=static\nZONE=libvirt" | sudo dd of=/etc/sysconfig/network-scripts/ifcfg-external
 cat > /home/stack/external.xml << EOF
@@ -23,7 +24,6 @@ cat > /home/stack/external.xml << EOF
    <bridge name='external'/>
 </network>
 EOF
-sudo ifdown external
 sudo ifup external
 sudo virsh net-define /home/stack/external.xml
 sudo virsh net-start external
@@ -52,5 +52,5 @@ sudo ifup eno2
 sudo dnf install bridge-utils -y
 brctl show
 
-#make -C $HOME/dev-scripts/ build_installer ironic install_config ocp_run bell
+make -C $HOME/dev-scripts/ build_installer ironic install_config ocp_run bell
 
