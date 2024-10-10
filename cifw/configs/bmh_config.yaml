@@ -1,0 +1,9 @@
+---
+cifmw_baremetal_hosts:
+  compute-0:
+    connection: "ipmi://rhos-nfv-12-drac.mgmt.lab.eng.rdu2.redhat.com"
+    boot_mode: UEFI
+    nics:
+      - mac: "2c:ea:7f:f7:36:ab"
+        network: provision
+    credentials_file: "/home/ciuser/configs/idrac_access.yaml"

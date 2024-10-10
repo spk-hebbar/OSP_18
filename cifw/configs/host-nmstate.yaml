@@ -1,0 +1,121 @@
+---
+# Holds the network configuration of the target host.
+cifmw_ci_nmstate_instance_config:
+
+  localhost:   # CHANGEME depends on custom inventory yml file
+    interfaces:
+      - name: eno1
+        type: ethernet
+        state: up
+        ipv4:
+          dhcp: true
+          enabled: true
+        ipv6:
+          dhcp: true
+          enabled: true
+
+      - name: eno2
+        type: ethernet
+        state: up
+
+      - name: enp196s0f0np0
+        type: ethernet
+        state: up
+        
+      - name: enp196s0f1np1
+        type: ethernet
+        state: up
+
+      - name: eno2.1502
+        type: vlan
+        state: up
+        vlan:
+          id: 1502
+          base-iface: eno2
+
+      - name: nfvbm
+        type: linux-bridge
+        state: up
+        bridge:
+          options:
+            stp:
+              enabled: false
+          port:
+            - name: enp196s0f0np0
+              stp-hairpin-mode: false
+              stp-path-cost: 100
+              stp-priority: 32
+        ipv4:
+          address:
+            - ip: 192.168.51.1
+              prefix-length: 24
+          enabled: true
+        ipv6:
+          enabled: false
+
+      - name: nfvpr
+        type: linux-bridge
+        state: up
+        bridge:
+          options:
+            stp:
+              enabled: false
+          port:
+            - name: eno2
+              stp-hairpin-mode: false
+              stp-path-cost: 100
+              stp-priority: 32
+        ipv4:
+          address:
+            - ip: 172.23.0.1
+              prefix-length: 24
+          enabled: true
+        ipv6:
+          enabled: false
+
+      - name: osp_trunk
+        type: linux-bridge
+        state: up
+        ipv4:
+          address:
+            - ip: 192.168.122.1
+              prefix-length: 24
+          enabled: true
+        ipv6:
+          enabled: false
+        bridge:
+          options:
+            stp:
+              enabled: false
+            vlan-protocol: 802.1q
+          port:
+            - name: enp196s0f1np1
+              stp-hairpin-mode: false
+              stp-path-cost: 100
+              stp-priority: 32
+              vlan:
+                mode: trunk
+                trunk-tags:
+                  - id-range:
+                      min: 211
+                      max: 220
+
+      - name: nfv_external
+        type: linux-bridge
+        state: up
+        bridge:
+          options:
+            stp:
+              enabled: false
+          port:
+            - name: eno2.1502
+              stp-hairpin-mode: false
+              stp-path-cost: 100
+              stp-priority: 32
+        ipv4:
+          address:
+            - ip: 192.168.10.1
+              prefix-length: 24
+          enabled: true
+        ipv6:
+          enabled: false

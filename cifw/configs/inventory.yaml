@@ -1,0 +1,8 @@
+---
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+    hypervisor:
+      ansible_user: zuul
+      ansible_host: rhos-nfv-11.lab.eng.rdu2.redhat.com
