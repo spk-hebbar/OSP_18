@@ -1,62 +1,71 @@
 ---
 # OpenShift cluster customization
 cifmw_use_devscripts: true
-_bm_network: "192.168.51.0/24"
+  #_bm_network: "192.168.51.0/24"
 cifmw_devscripts_remove_libvirt_net_default: true
 cifmw_devscripts_enable_ocp_nodes_host_routing: true
-cifmw_devscripts_host_bm_net_ip_addr: "{{ _bm_network | ansible.utils.nthhost(1) }}"
+#cifmw_devscripts_host_bm_net_ip_addr: "{{ _bm_network | ansible.utils.nthhost(1) }}"
 
-# devscripts override
-cifmw_devscripts_config_overrides:
-  cluster_name: nfv
-  worker_memory: 16384
-  worker_disk: 100
-  worker_vcpu: 10
-  num_extra_workers: 0
-  fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
-  openshift_version: "4.15.8"
-  external_subnet_v4: "192.168.51.0/24"
-  ext_if: 'eno1'
+cifmw_devscripts_config_overrides:                                               
+  fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"                  
+  ext_if: 'eno1'                                                                 
+    # external_subnet_v4: "192.168.511.0/24"                                         
+    #provisioning_host_external_ip: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"    
+    #provisioning_url_host: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"            
+    #provisioning_network: "172.23.0.0/24"                                          
+cifmw_manage_secrets_reproducer_secrets:                                         
+  - src: "/home/zuul/configs/idrac_access.yaml"                                  
+    dest: "/home/zuul/idrac_access.yaml"
+
+ #openshift_version: "4.15.8"
+
+cifmw_devscripts_config:
+  # worker_disk: 100
+  ip_stack: v4
+  cluster_name: ocp
+  base_domain: openstack.lab
+  working_dir: "{{ cifmw_basedir }}/dev-scripts/"
+  assets_extra_folder: "{{ cifmw_basedir }}/dev-scripts/"
+  network_type: OpenShiftSDN
+  num_masters: 3
+  num_workers: 0
+    #  worker_memory: 16384
+    #  worker_vcpu: 10
+    #  num_extra_workers: 0
   enable_bootstrap_static_ip: "true"
-  # 'n' set in the three bridges to avoid dev-scripts set up them
-  # In this VA networking configuration of the hypervisor is done
-  # using plain nmstate
-  manage_br_bridge: 'n'
-  manage_int_bridge: 'n'
+  manage_br_bridge: 'n'                                                          
+  manage_int_bridge: 'n'                                                         
   manage_pro_bridge: 'n'
-  provisioning_host_external_ip: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
-  provisioning_url_host: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
-  provisioning_network: "172.23.0.0/24"
-
+ 
 # libvirt settings
 cifmw_use_libvirt: true
 cifmw_libvirt_manager_net_prefix_add: false
-cifmw_libvirt_manager_pub_net: nfvbm
+cifmw_libvirt_manager_pub_net: ocpbm
 cifmw_libvirt_manager_fixed_networks:
-  - nfvbm
-  - nfvpr
+  - ocpbm
+  - ocppr
   - osp_trunk
-  - nfv_external
-cifmw_libvirt_manager_configuration_patch_01:
-  vms:
-    controller:
-      ip_address:
-        address: "{{ _bm_network | ansible.utils.nthhost(9) }}"
-        gw: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
-        dns: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
+  - osp_external
+    #cifmw_libvirt_manager_configuration_patch_01:
+    #  vms:
+    #    controller:
+    #      ip_address:
+    #        address: "{{ _bm_network | ansible.utils.nthhost(9) }}"
+    #        gw: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
+    #        dns: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
 cifmw_libvirt_manager_configuration:
   networks:
-    nfvbm: |
+    ocpbm: |
       <network>
-        <name>nfvbm</name>
+        <name>ocpbm</name>
         <forward mode='bridge' />
-        <bridge name='nfvbm' />
+        <bridge name='ocpbm' />
       </network>
-    nfvpr: |
+    ocppr: |
       <network>
-        <name>nfvpr</name>
+        <name>ocppr</name>
         <forward mode='bridge' />
-        <bridge name='nfvpr' />
+        <bridge name='ocppr' />
       </network>
     osp_trunk: |
       <network>
@@ -64,26 +73,31 @@ cifmw_libvirt_manager_configuration:
         <forward mode='bridge' />
         <bridge name='osp_trunk' />
       </network>
-    nfv_external: |
+    osp_external: |
       <network>
-        <name>nfv_external</name>
+        <name>osp_external</name>
         <forward mode='bridge' />
-        <bridge name='nfv_external' />
+        <bridge name='osp_external' />
       </network>
   vms:
     ocp:
       amount: 3
       admin_user: core
-      image_local_dir: "/home/dev-scripts/pool"
-      disk_file_name: "nfv_master"
+      image_local_dir: "{{ cifmw_basedir }}/images/"
+      disk_file_name: "ocp_master"
       disksize: "100"
-      xml_paths:
-        - /home/dev-scripts/nfv_master_0.xml
-        - /home/dev-scripts/nfv_master_1.xml
-        - /home/dev-scripts/nfv_master_2.xml
+      memory: 16
+      cpus: 10
+      uefi: true
+        #      xml_paths:
+        #        - /home/dev-scripts/nfv_master_0.xml
+        #        - /home/dev-scripts/nfv_master_1.xml
+        #        - /home/dev-scripts/nfv_master_2.xml
       nets:
         - osp_trunk
-        - nfv_external
+        - osp_external
+        - ocppr
+        - ocpbm
     controller:
       root_part_id: 4
       image_url: "https://download.eng.rdu.redhat.com/released/rhel-9/RHEL-9/9.2.0/BaseOS/x86_64/images/rhel-guest-image-9.2-20230414.17.x86_64.qcow2"
@@ -93,46 +107,47 @@ cifmw_libvirt_manager_configuration:
       disksize: 50
       memory: 8
       cpus: 4
-      ip_address:
-        address: "192.168.51.9/24"
-        gw: "192.168.51.1"
-        dns: "192.168.51.1"
+        #      ip_address:
+        #        address: "192.168.51.9/24"
+        #        gw: "192.168.51.1"
+        #        dns: "192.168.51.1"
       nets:
-        - nfvbm
+        - ocpbm
         - osp_trunk
 
-cifmw_network_dnsmasq_config:
-  interfaces:
-    - nfvbm
-    - osp_trunk
-    - lo
-  listen_addresses:
-    - 127.0.0.1
-    - 192.168.122.1
-    - "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
-  forwarders:
-    - 10.47.242.10
-    - 10.45.248.15
-  domains:
-    - "openstack.lab"
-  addresses:
-    - fqdn: "api.nfv.openstack.lab"
-      address: "{{ _bm_network | ansible.utils.nthhost(2) }}"
-    - fqdn: ".apps.nfv.openstack.lab"
-      address: "{{ _bm_network | ansible.utils.nthhost(3) }}"
-  dhcp:
-    domain: "openstack.lab"
-    network: "{{ _bm_network }}"
-    dns:
-      - "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
-    gateway: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
-    range:
-      start: "{{ _bm_network | ansible.utils.nthhost(20) }}"
-      end: "{{ (_bm_network | ansible.utils.usable_range).usable_ips[-2] }}"
-    exclude_interfaces:
-      - lo
-      - osp_trunk
+          #cifmw_network_dnsmasq_config:
+          #  interfaces:
+          #    - ocpbm
+          #    - osp_trunk
+          #    - lo
+          #  listen_addresses:
+          #    - 127.0.0.1
+          #    - 192.168.122.1
+          #    - "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
+          #  forwarders:
+          #    - 10.47.242.10
+          #    - 10.45.248.15
+          #  domains:
+          #    - "openstack.lab"
+          #  addresses:
+          #    - fqdn: "api.nfv.openstack.lab"
+          #      address: "{{ _bm_network | ansible.utils.nthhost(2) }}"
+          #    - fqdn: ".apps.nfv.openstack.lab"
+          #      address: "{{ _bm_network | ansible.utils.nthhost(3) }}"
+          #  dhcp:
+          #    domain: "openstack.lab"
+          #    network: "{{ _bm_network }}"
+          #    dns:
+          #      - "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
+          #    gateway: "{{ cifmw_devscripts_host_bm_net_ip_addr }}"
+          #    range:
+          #      start: "{{ _bm_network | ansible.utils.nthhost(20) }}"
+          #      end: "{{ (_bm_network | ansible.utils.usable_range).usable_ips[-2] }}"
+          #    exclude_interfaces:
+          #      - lo
+          #      - osp_trunk
 
 # secrets required by devscripts
 cifmw_manage_secrets_citoken_file: "{{ lookup('env', 'HOME') }}/configs/ci_token"
 cifmw_manage_secrets_pullsecret_file: "{{ lookup('env', 'HOME') }}/configs/pull_secret"
+  #export PROVISIONING_HOST_EXTERNAL_IP=10.8.2.186

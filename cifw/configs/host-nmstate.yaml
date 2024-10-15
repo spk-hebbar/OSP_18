@@ -26,14 +26,14 @@ cifmw_ci_nmstate_instance_config:
         type: ethernet
         state: up
 
-      - name: eno2.1502
+      - name: eno2.1501
         type: vlan
         state: up
         vlan:
-          id: 1502
+          id: 1501
           base-iface: eno2
 
-      - name: nfvbm
+      - name: ocpbm
         type: linux-bridge
         state: up
         bridge:
@@ -53,7 +53,7 @@ cifmw_ci_nmstate_instance_config:
         ipv6:
           enabled: false
 
-      - name: nfvpr
+      - name: ocppr
         type: linux-bridge
         state: up
         bridge:
@@ -67,7 +67,7 @@ cifmw_ci_nmstate_instance_config:
               stp-priority: 32
         ipv4:
           address:
-            - ip: 172.23.0.1
+            - ip: 172.22.0.1
               prefix-length: 24
           enabled: true
         ipv6:
@@ -100,7 +100,7 @@ cifmw_ci_nmstate_instance_config:
                       min: 211
                       max: 220
 
-      - name: nfv_external
+      - name: osp_external
         type: linux-bridge
         state: up
         bridge:
@@ -108,7 +108,7 @@ cifmw_ci_nmstate_instance_config:
             stp:
               enabled: false
           port:
-            - name: eno2.1502
+            - name: eno2.1501
               stp-hairpin-mode: false
               stp-path-cost: 100
               stp-priority: 32

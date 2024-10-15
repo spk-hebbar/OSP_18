@@ -34,6 +34,7 @@ sudo dnf install -y https://download.eng.bos.redhat.com/rcm-guest/puddles/OpenSt
 #Install required packages                                                       
 sudo dnf -y install NetworkManager-initscripts-updown.noarch ipmitool make git-core jq wget dnsmasq
 
+mkdir src; cd src
 git clone https://github.com/openshift-metal3/dev-scripts.git
  
 git clone https://github.com/spk-hebbar/OSP_18.git

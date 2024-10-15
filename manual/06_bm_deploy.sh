@@ -9,4 +9,4 @@ oc get bmh -n openshift-machine-api
 #The state should be available
 
 #Optional step to apply label to baremetal server if required and missed specifying in above yaml file
-#oc label bmh -n openshift-machine-api nfv02 app=openstack
+#oc label bmh -n openshift-machine-api nfv12 app=openstack

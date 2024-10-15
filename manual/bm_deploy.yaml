@@ -30,14 +30,14 @@ data:
 apiVersion: metal3.io/v1alpha1
 kind: BareMetalHost
 metadata:
-  name: nfv03
+  name: nfv12
   namespace: openshift-machine-api
   labels:
     app: openstack
 spec:
   online: false
-  bootMACAddress: "E4:43:4B:4D:D4:CB"
+  bootMACAddress: "2c:ea:7f:f7:36:ab"
   bmc:
-    address: "ipmi://10.9.20.140"
+    address: "ipmi://rhos-nfv-12-drac.mgmt.lab.eng.rdu2.redhat.com"
     credentialsName: idrac-secret
   bootMode: UEFI
