@@ -1,7 +1,6 @@
 ---
 # Holds the network configuration of the target host.
 cifmw_ci_nmstate_instance_config:
-
   localhost:   # CHANGEME depends on custom inventory yml file
     interfaces:
       - name: eno1
@@ -47,7 +46,7 @@ cifmw_ci_nmstate_instance_config:
               stp-priority: 32
         ipv4:
           address:
-            - ip: 192.168.51.1
+            - ip: 192.168.111.1
               prefix-length: 24
           enabled: true
         ipv6:

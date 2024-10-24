@@ -6,4 +6,4 @@ cifmw_baremetal_hosts:
     nics:
       - mac: "2c:ea:7f:f7:36:ab"
         network: provision
-    credentials_file: "/home/ciuser/configs/idrac_access.yaml"
+    credentials_file: "/home/zuul/config/idrac_access.yaml"
