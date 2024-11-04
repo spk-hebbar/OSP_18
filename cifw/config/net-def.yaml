@@ -2,121 +2,401 @@
 cifmw_networking_definition:
   networks:
     ctlplane:
-      network: "192.168.122.0/24"
-      gateway: "192.168.122.1"
-      dns:
-        - "192.168.122.1"
-      mtu: 1500
-      tools:
-        multus:
-          ranges:
-            - start: 30
-              end: 70
-        netconfig:
-          ranges:
-            - start: 100
-              end: 120
-            - start: 150
-              end: 200
-        metallb:
-          ranges:
-            - start: 80
-              end: 90
-    internalapi:
-      network: "172.17.0.0/24"
-      vlan: 212
-      mtu: 1496
-      tools:
-        metallb:
-          ranges:
-            - start: 80
-              end: 90
-        netconfig:
-          ranges:
-            - start: 100
-              end: 250
-        multus:
-          ranges:
-            - start: 30
-              end: 70
-    storage:
-      network: "172.18.0.0/24"
-      vlan: 213
-      mtu: 1496
-      tools:
-        metallb:
-          ranges:
-            - start: 80
-              end: 90
-        netconfig:
-          ranges:
-            - start: 100
-              end: 250
-        multus:
-          ranges:
-            - start: 30
-              end: 70
-    tenant:
-      network: "172.19.0.0/24"
-      tools:
-        metallb:
-          ranges:
-            - start: 80
-              end: 90
-        netconfig:
-          ranges:
-            - start: 100
-              end: 250
-        multus:
-          ranges:
-            - start: 30
-              end: 70
-      vlan: 214
-      mtu: 1496
+        dns_v4:
+        - 192.168.122.1
+        dns_v6: []
+        gw_v4: 192.168.122.1
+        mtu: 1500
+        network_name: ctlplane
+        network: 192.168.122.0/24
+        search_domain: ctlplane.example.com
+        tools:
+            metallb:
+                ipv4_ranges:
+                -   end: 192.168.122.90
+                    end_host: 90
+                    length: 11
+                    start: 192.168.122.80
+                    start_host: 80
+                ipv6_ranges: []
+            multus:
+                ipv4_ranges:
+                -   end: 192.168.122.70
+                    end_host: 70
+                    length: 41
+                    start: 192.168.122.30
+                    start_host: 30
+                ipv4_routes: []
+                ipv6_ranges: []
+                ipv6_routes: []
+            netconfig:
+                ipv4_ranges:
+                -   end: 192.168.122.120
+                    end_host: 120
+                    length: 21
+                    start: 192.168.122.100
+                    start_host: 100
+                ipv6_ranges: []
     external:
-      network: "192.168.10.0/24"
-      tools:
-        netconfig:
-          ranges:
-            - start: 100
-              end: 250
-      mtu: 1500
+        dns_v4: []
+        dns_v6: []
+        mtu: 1496
+        network_name: external
+        network: 192.168.10.0/24
+        search_domain: external.example.com
+        tools:
+            metallb:
+                ipv4_ranges:
+                -   end: 192.168.10.90
+                    end_host: 90
+                    length: 11
+                    start: 192.168.10.80
+                    start_host: 80
+                ipv6_ranges: []
+            multus:
+                ipv4_ranges:
+                -   end: 192.168.10.70
+                    end_host: 70
+                    length: 41
+                    start: 192.168.10.30
+                    start_host: 30
+                ipv4_routes: []
+                ipv6_ranges: []
+                ipv6_routes: []
+            netconfig:
+                ipv4_ranges:
+                -   end: 192.168.10.250
+                    end_host: 250
+                    length: 151
+                    start: 192.168.10.100
+                    start_host: 100
+                ipv6_ranges: []
+        vlan_id: 215
+    internalapi:
+        dns_v4: []
+        dns_v6: []
+        mtu: 1496
+        network_name: internalapi
+        network: 172.17.0.0/24
+        search_domain: internalapi.example.com
+        tools:
+            metallb:
+                ipv4_ranges:
+                -   end: 172.17.0.90
+                    end_host: 90
+                    length: 11
+                    start: 172.17.0.80
+                    start_host: 80
+                ipv6_ranges: []
+            multus:
+                ipv4_ranges:
+                -   end: 172.17.0.70
+                    end_host: 70
+                    length: 41
+                    start: 172.17.0.30
+                    start_host: 30
+                ipv4_routes: []
+                ipv6_ranges: []
+                ipv6_routes: []
+            netconfig:
+                ipv4_ranges:
+                -   end: 172.17.0.250
+                    end_host: 250
+                    length: 151
+                    start: 172.17.0.100
+                    start_host: 100
+                ipv6_ranges: []
+        vlan_id: 212
+    storage:
+        dns_v4: []
+        dns_v6: []
+        mtu: 1496
+        network_name: storage
+        network: 172.18.0.0/24
+        search_domain: storage.example.com
+        tools:
+            metallb:
+                ipv4_ranges:
+                -   end: 172.18.0.90
+                    end_host: 90
+                    length: 11
+                    start: 172.18.0.80
+                    start_host: 80
+                ipv6_ranges: []
+            multus:
+                ipv4_ranges:
+                -   end: 172.18.0.70
+                    end_host: 70
+                    length: 41
+                    start: 172.18.0.30
+                    start_host: 30
+                ipv4_routes: []
+                ipv6_ranges: []
+                ipv6_routes: []
+            netconfig:
+                ipv4_ranges:
+                -   end: 172.18.0.250
+                    end_host: 250
+                    length: 151
+                    start: 172.18.0.100
+                    start_host: 100
+                ipv6_ranges: []
+        vlan_id: 213
     storagemgmt:
-      network: "172.20.0.0/24"
-      tools:
-        netconfig:
-          ranges:
-            - start: 100
-              end: 250
-      vlan: 215
-      mtu: 1500
-
-  group-templates:
-    ocps:
-      network-template:
-        range:
-          start: 10
-          length: 5
-      networks:
-        ctlplane: {}
-        internalapi: {}
-        tenant: {}
-        storage: {}
-        external: {}
-    computes:
-      network-template:
-        range:
-          start: 100
-          length: 21
-      networks:
-        ctlplane: {}
-        internalapi: {}
-        tenant: {}
-        storage: {}
-        storagemgmt: {}
-        external: {}
+        dns_v4: []
+        dns_v6: []
+        mtu: 1496
+        network_name: storagemgmt
+        network: 172.20.0.0/24
+        search_domain: storagemgmt.example.com
+        tools:
+            metallb:
+                ipv4_ranges:
+                -   end: 172.20.0.90
+                    end_host: 90
+                    length: 11
+                    start: 172.20.0.80
+                    start_host: 80
+                ipv6_ranges: []
+            multus:
+                ipv4_ranges:
+                -   end: 172.20.0.70
+                    end_host: 70
+                    length: 41
+                    start: 172.20.0.30
+                    start_host: 30
+                ipv4_routes: []
+                ipv6_ranges: []
+                ipv6_routes: []
+            netconfig:
+                ipv4_ranges:
+                -   end: 172.20.0.250
+                    end_host: 250
+                    length: 151
+                    start: 172.20.0.100
+                    start_host: 100
+                ipv6_ranges: []
+        vlan_id: 216
+    tenant:
+        dns_v4: []
+        dns_v6: []
+        mtu: 1496
+        network_name: tenant
+        network: 172.19.0.0/24
+        search_domain: tenant.example.com
+        tools:
+            metallb:
+                ipv4_ranges:
+                -   end: 172.19.0.90
+                    end_host: 90
+                    length: 11
+                    start: 172.19.0.80
+                    start_host: 80
+                ipv6_ranges: []
+            multus:
+                ipv4_ranges:
+                -   end: 172.19.0.70
+                    end_host: 70
+                    length: 41
+                    start: 172.19.0.30
+                    start_host: 30
+                ipv4_routes: []
+                ipv6_ranges: []
+                ipv6_routes: []
+            netconfig:
+                ipv4_ranges:
+                -   end: 172.19.0.250
+                    end_host: 250
+                    length: 151
+                    start: 172.19.0.100
+                    start_host: 100
+                ipv6_ranges: []
+        vlan_id: 214
   instances:
     controller-0:
-      networks:
-        ctlplane:
-          ip: "192.168.122.9"
+        hostname: controller-0
+        name: controller-0
+        networks:
+            ctlplane:
+                interface_name: eth1
+                ip: 192.168.122.9
+                mac_addr: 52:54:03:5b:5e:9c
+                mtu: 1500
+                netmask_v4: 255.255.255.0
+                network_name: ctlplane
+                prefix_length_v4: 24
+                skip_nm: false
+    ocp-master-0:
+        hostname: master-0
+        name: ocp-master-0
+        networks:
+            ctlplane:
+                interface_name: enp7s0
+                ip: 192.168.122.10
+                mac_addr: 52:54:00:6a:15:73
+                mtu: 1500
+                netmask_v4: 255.255.255.0
+                network_name: ctlplane
+                prefix_length_v4: 24
+                skip_nm: false
+            external:
+                interface_name: enp7s0.215
+                parent_interface: enp7s0
+                ip: 192.168.10.10
+                mac_addr: 52:54:00:0b:7e:ad
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: external
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 215
+            internalapi:
+                interface_name: enp7s0.212
+                parent_interface: enp7s0
+                ip: 172.17.0.10
+                mac_addr: 52:54:00:68:4b:ce
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: internalapi
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 212
+            storage:
+                interface_name: enp7s0.213
+                parent_interface: enp7s0
+                ip: 172.18.0.10
+                mac_addr: 52:54:00:05:23:2c
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: storage
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 213
+            tenant:
+                interface_name: enp7s0.214
+                parent_interface: enp7s0
+                ip: 172.19.0.10
+                mac_addr: 52:54:00:06:80:f0
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: tenant
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 214
+    ocp-master-1:
+        hostname: master-1
+        name: ocp-master-1
+        networks:
+            ctlplane:
+                interface_name: enp7s0
+                ip: 192.168.122.11
+                mac_addr: 52:54:01:79:7b:ca
+                mtu: 1500
+                netmask_v4: 255.255.255.0
+                network_name: ctlplane
+                prefix_length_v4: 24
+                skip_nm: false
+            external:
+                interface_name: enp7s0.215
+                parent_interface: enp7s0
+                ip: 192.168.10.11
+                mac_addr: 52:54:00:51:fd:46
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: external
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 215
+            internalapi:
+                interface_name: enp7s0.212
+                parent_interface: enp7s0
+                ip: 172.17.0.11
+                mac_addr: 52:54:00:71:78:e6
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: internalapi
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 212
+            storage:
+                interface_name: enp7s0.213
+                parent_interface: enp7s0
+                ip: 172.18.0.11
+                mac_addr: 52:54:00:76:3d:ba
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: storage
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 213
+            tenant:
+                interface_name: enp7s0.214
+                parent_interface: enp7s0
+                ip: 172.19.0.11
+                mac_addr: 52:54:00:7a:5d:1d
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: tenant
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 214
+    ocp-master-2:
+        hostname: master-2
+        name: ocp-master-2
+        networks:
+            ctlplane:
+                interface_name: enp7s0
+                ip: 192.168.122.12
+                mac_addr: 52:54:02:21:3c:fd
+                mtu: 1500
+                netmask_v4: 255.255.255.0
+                network_name: ctlplane
+                prefix_length_v4: 24
+                skip_nm: false
+            external:
+                interface_name: enp7s0.215
+                parent_interface: enp7s0
+                ip: 192.168.10.12
+                mac_addr: 52:54:00:49:09:b9
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: external
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 215
+            internalapi:
+                interface_name: enp7s0.212
+                parent_interface: enp7s0
+                ip: 172.17.0.12
+                mac_addr: 52:54:00:66:a0:7c
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: internalapi
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 212
+            storage:
+                interface_name: enp7s0.213
+                parent_interface: enp7s0
+                ip: 172.18.0.12
+                mac_addr: 52:54:00:09:45:3b
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: storage
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 213
+            tenant:
+                interface_name: enp7s0.214
+                parent_interface: enp7s0
+                ip: 172.19.0.12
+                mac_addr: 52:54:00:22:70:9f
+                mtu: 1496
+                netmask_v4: 255.255.255.0
+                network_name: tenant
+                prefix_length_v4: 24
+                skip_nm: false
+                vlan_id: 214
+
+
+
