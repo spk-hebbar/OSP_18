@@ -1,0 +1,10 @@
+---
+cifmw_baremetal_hosts:
+  compute-0:
+    password: calvin
+    username: root
+    connection: "ipmi://10.9.20.143"
+    boot_mode: UEFI
+    nics:
+      - mac: "E4:43:4B:49:A9:97"
+        network: provision

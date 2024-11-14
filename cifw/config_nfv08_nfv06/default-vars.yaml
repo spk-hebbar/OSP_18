@@ -1,0 +1,44 @@
+---
+## Here, we mention the default RHEL version
+_rhel_version: "9.4"
+
+# We can't use ansible_user_dir here, unless you have the same user on the
+# hypervisor and locally.
+cifmw_install_yamls_repo: "{{ ansible_user_dir }}/src/github.com/openstack-k8s-operators/install_yamls"
+
+# This will be created on the hypervisor.
+cifmw_basedir: "{{ ansible_user_dir }}/ci-framework-data"
+cifmw_path: "{{ ansible_user_dir }}/bin:{{ ansible_env.PATH }}"
+
+# repo-setup related vars
+cifmw_repo_setup_promotion: "podified-ci-testing"
+cifmw_repo_setup_branch: osp18
+cifmw_repo_setup_dlrn_uri: "https://osp-trunk.hosted.upshift.rdu2.redhat.com/"
+cifmw_repo_setup_os_release: "rhel"
+cifmw_repo_setup_enable_rhos_release: true
+cifmw_repo_setup_rhos_release_rpm: "http://download.devel.redhat.com/rcm-guest/puddles/OpenStack/rhos-release/rhos-release-latest.noarch.rpm"
+cifmw_install_ca_url: "https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem"
+cifmw_repo_setup_rhos_release_args: "ceph-7.0-rhel-9 -r {{ _rhel_version }}"
+cifmw_repo_setup_dist_major_version: "{{ ansible_distribution_major_version }}"
+cifmw_repo_setup_env:
+  CURL_CA_BUNDLE: "/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
+
+# discover-latest image related vars
+cifmw_discover_latest_image_base_url: "http://download.eng.rdu.redhat.com/released/rhel-9/RHEL-9/{{ _rhel_version }}.0/BaseOS/x86_64/images/"
+cifmw_discover_latest_image_qcow_prefix: "rhel-guest-image-{{ _rhel_version }}-"
+cifmw_discover_latest_image_images_file: "SHA256SUM"
+
+# CRB repo enablement.
+cifmw_ci_setup_yum_repos:
+  - name: crb
+    baseurl: 'http://download.eng.rdu.redhat.com/released/rhel-9/RHEL-9/{{ _rhel_version }}.0/CRB/x86_64/os/'
+    description: Code ready buildera
+
+## HERE, this is when your host doesn't have subscription
+cifmw_reproducer_hp_rhos_release: true
+
+# type and size of ssh keys injected into the OCP workers and compute nodes
+cifmw_ssh_keytype: ecdsa
+cifmw_ssh_keysize: 521
+cifmw_openshift_adm_retry_count: 200
+cifmw_virtualbmc_daemon_port: 50881

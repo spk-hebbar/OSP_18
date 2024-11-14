@@ -1,0 +1,130 @@
+---
+cifmw_networking_definition:
+  group-templates:
+      computes:
+          network-template:
+              range:
+                  length: 21
+                  start: 100
+          networks:
+              ctlplane: {}
+              external:
+                  trunk-parent: ctlplane
+              internalapi:
+                  trunk-parent: ctlplane
+              storage:
+                  trunk-parent: ctlplane
+              storagemgmt:
+                  trunk-parent: ctlplane
+              tenant:
+                  trunk-parent: ctlplane
+      ocps:
+          network-template:
+              range:
+                  length: 5
+                  start: 10
+          networks:
+              ctlplane: {}
+              external:
+                  trunk-parent: ctlplane
+              internalapi:
+                  trunk-parent: ctlplane
+              storage:
+                  trunk-parent: ctlplane
+              tenant:
+                  trunk-parent: ctlplane
+  instances:
+      controller-0:
+          networks:
+              ctlplane:
+                  ip: 192.168.122.9
+  networks:
+      ctlplane:
+          dns:
+          - 192.168.122.1
+          gateway: 192.168.122.1
+          mtu: 1500
+          network: 192.168.122.0/24
+          tools:
+              metallb:
+                  ranges:
+                  -   end: 90
+                      start: 80
+              multus:
+                  ranges:
+                  -   end: 70
+                      start: 30
+              netconfig:
+                  ranges:
+                  -   end: 120
+                      start: 100
+                  -   end: 200
+                      start: 150
+      external:
+          mtu: 1500
+          network: 192.168.10.0/24
+          tools:
+              netconfig:
+                  ranges:
+                  -   end: 250
+                      start: 100
+      internalapi:
+          mtu: 1496
+          network: 172.17.0.0/24
+          tools:
+              metallb:
+                  ranges:
+                  -   end: 90
+                      start: 80
+              multus:
+                  ranges:
+                  -   end: 70
+                      start: 30
+              netconfig:
+                  ranges:
+                  -   end: 250
+                      start: 100
+          vlan: 312
+      storage:
+          mtu: 1496
+          network: 172.18.0.0/24
+          tools:
+              metallb:
+                  ranges:
+                  -   end: 90
+                      start: 80
+              multus:
+                  ranges:
+                  -   end: 70
+                      start: 30
+              netconfig:
+                  ranges:
+                  -   end: 250
+                      start: 100
+          vlan: 313
+      storagemgmt:
+          mtu: 1500
+          network: 172.20.0.0/24
+          tools:
+              netconfig:
+                  ranges:
+                  -   end: 250
+                      start: 100
+          vlan: 315
+      tenant:
+          mtu: 1496
+          network: 172.19.0.0/24
+          tools:
+              metallb:
+                  ranges:
+                  -   end: 90
+                      start: 80
+              multus:
+                  ranges:
+                  -   end: 70
+                      start: 30
+              netconfig:
+                  ranges:
+                  -   end: 250
+                      start: 100
+          vlan: 314

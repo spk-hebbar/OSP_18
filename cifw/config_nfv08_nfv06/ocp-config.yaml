@@ -1,0 +1,25 @@
+---
+
+# OpenShift cluster customization
+cifmw_use_devscripts: true
+_bm_network: "192.168.111.0/24"
+cifmw_devscripts_host_bm_net_ip_addr: "{{ _bm_network | ansible.utils.nthhost(1) }}"
+cifmw_reproducer_provision_net: ocppr
+cifmw_nolog: false
+
+# devscripts override
+cifmw_devscripts_config_overrides:
+  external_subnet_v4: "192.168.111.0/24"
+  ext_if: 'eno3'
+  # 'n' set in the three bridges to avoid dev-scripts set up them
+  # In this VA networking configuration of the hypervisor is done
+  # using plain nmstate
+  manage_br_bridge: 'n'
+  manage_int_bridge: 'n'
+  manage_pro_bridge: 'n'
+  api_vips_4: "192.168.111.6"
+  ingress_vips_4: "192.168.111.7"
+  provisioning_network: "172.22.0.0/24"
+  ip_stack: v4
+
+cifmw_skip_os_net_setup: true
