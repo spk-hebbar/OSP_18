@@ -1,0 +1,13 @@
+---
+cifmw_baremetal_hosts:
+  compute-0:
+    connection: redfish://rhos-nfv-10-drac.mgmt.lab.eng.rdu2.redhat.com/redfish/v1/Systems/System.Embedded.1
+    boot_mode: UEFI
+    nics:
+      - mac: "E4:43:4B:4D:EC:65"
+        network: provision
+      - mac: "E4:43:4B:4D:EC:46"
+        network: ocpbm
+    credentials_file: "/home/zuul/idrac_access.yaml"
+#    root_device_hint_field: "wwnWithExtension"
+#    root_device_hint: "0x6d0946607e129d0023ef5e666b4a53dd"

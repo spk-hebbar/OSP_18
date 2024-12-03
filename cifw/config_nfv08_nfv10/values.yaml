@@ -1,0 +1,198 @@
+cifmw_architecture_user_kustomize:
+  stage_1:
+    service-values:
+      data:
+        neutron:
+          customServiceConfig: |
+            [DEFAULT]
+            global_physnet_mtu = 9000
+            [ml2]
+            mechanism_drivers = ovn,sriovnicswitch
+            path_mtu = 0
+            [ovn]
+            vhost_sock_dir = /var/lib/vhost_sockets
+            enable_distributed_floating_ip=False
+            [ml2_type_vlan]
+            network_vlan_ranges = dpdk1:202:205,dpdk2:206:210
+            [oslo_policy]
+            policy_file=/etc/neutron/policy.d/policy.yaml
+
+        ovn:
+          ovnController:
+            nicMappings:
+              datacentre: ospbr
+              dpdk1: ospbr
+              dpdk2: ospbr
+
+        glance:
+          customServiceConfig: |
+            [DEFAULT]
+            enabled_backends = default_backend:swift
+            [glance_store]
+            default_backend = default_backend
+            [default_backend]
+            swift_store_create_container_on_put = True
+            swift_store_auth_version = 3
+            swift_store_endpoint_type = internalURL
+            swift_store_user = service:glance
+          default:
+            replicas: 1
+          swift:
+            enabled: true
+          telemetry:
+            enabled: true
+            template:
+              ceilometer:
+                enabled: true
+          extraMounts:
+            - name: v1
+              region: r1
+              extraVol:
+                - propagation:
+                    - NeutronAPI
+                  extraVolType: Policy
+                  volumes:
+                    - name: neutron-policy
+                      configMap:
+                        name: neutron-policy
+                  mounts:
+                    - name: neutron-policy
+                      mountPath: /etc/neutron/policy.d
+                      readOnly: true
+  stage_2:
+    edpm-nodeset-values:
+      data:
+        baremetalSetTemplate:
+          provisioningInterface: enp5s0
+          ctlplaneInterface: eno2
+        nodeset:
+          ansible:
+            ansibleVars:
+              edpm_network_config_os_net_config_mappings:
+                edpm-compute-0:
+                  nic1: e4:43:4b:4d:ec:44
+                  nic2: e4:43:4b:4d:ec:46
+                  nic3: e4:43:4b:4d:ec:64   # redhat management
+                  nic4: e4:43:4b:4d:ec:65
+                  nic5: 04:3f:72:d9:c0:44
+                  nic6: 04:3f:72:d9:c0:45
+              edpm_kernel_args: "default_hugepagesz=1GB hugepagesz=1G hugepages=64 iommu=pt intel_iommu=on tsx=off isolcpus=2-19,22-39"
+              edpm_tuned_profile: "cpu-partitioning"
+              edpm_tuned_isolated_cores: "2-19,22-39"
+              edpm_ovs_dpdk_pmd_core_list: "2,3,4,5,6,7,22,23,24,25,26,27"
+              edpm_ovs_dpdk_socket_memory: "4096,1024"
+              edpm_ovs_dpdk_memory_channels: "4"
+              edpm_ovn_bridge_mappings:
+                - 'dpdk1:br-dpdk1'
+                - 'dpdk2:br-dpdk2'
+                - 'dpdkmgmt:br-link0'
+              internalapi_vlan_id: 312
+              internalapi_mtu: 1500
+              storage_vlan_id: 313
+              storage_mtu: 1500
+              tenant_vlan_id: 314
+              tenant_mtu: 1500
+                #              edpm_network_config_template: |
+                #                ---
+                #                {% set mtu_list = [ctlplane_mtu] %}
+                #                {% for network in nodeset_networks %}
+                #                {{ mtu_list.append(lookup('vars', networks_lower[network] ~ '_mtu')) }}
+                #                {%- endfor %}
+                #                {% set min_viable_mtu = mtu_list | max %}
+                #                network_config:
+                #                - type: interface
+                #                  name: nic3
+                #                  use_dhcp: false
+                #      
+                #                - type: interface
+                #                  name: nic4
+                #                  use_dhcp: false
+                #      
+                #                - type: sriov_pf
+                #                  name: nic2
+                #                  mtu: 9000
+                #                  numvfs: 3
+                #                  use_dhcp: false
+                #                  defroute: false
+                #                  nm_controlled: true
+                #                  hotplug: true
+                #      
+                #                - type: linux_bond
+                #                  name: bond_api
+                #                  use_dhcp: false
+                #                  bonding_options: "mode=active-backup"
+                #                  dns_servers: {{ ctlplane_dns_nameservers }}
+                #                  members:
+                #                  - type: sriov_vf
+                #                    device: nic2
+                #                    vfid: 0
+                #                  addresses:
+                #                  - ip_netmask: {{ ctlplane_ip }}/{{ ctlplane_cidr }}
+                #                  routes:
+                #                  - default: true
+                #                    next_hop: {{ ctlplane_gateway_ip }}
+                #      
+                #                - type: vlan
+                #                  vlan_id: {{ lookup('vars', networks_lower['internalapi'] ~ '_vlan_id') }}
+                #                  device: bond_api
+                #                  addresses:
+                #                  - ip_netmask: {{ lookup('vars', networks_lower['internalapi'] ~ '_ip') }}/{{ lookup('vars', networks_lower['internalapi'] ~ '_cidr') }}
+                #      
+                #                - type: linux_bond
+                #                  name: storage_bond
+                #                  use_dhcp: false
+                #                  bonding_options: "mode=active-backup"
+                #                  dns_servers: {{ ctlplane_dns_nameservers }}
+                #                  members:
+                #                    - type: sriov_vf
+                #                      device: nic2
+                #                      vfid: 1
+                #                      vlan_id: {{ lookup('vars', networks_lower['storage'] ~ '_vlan_id') }}
+                #                  addresses:
+                #                  - ip_netmask: {{ lookup('vars', networks_lower['storage'] ~ '_ip') }}/{{ lookup('vars', networks_lower['storage'] ~ '_cidr') }}
+                #      
+                #                - type: ovs_user_bridge
+                #                  name: br-link0
+                #                  use_dhcp: false
+                #                  ovs_extra: "set port br-link0 tag={{ lookup('vars', networks_lower['tenant'] ~ '_vlan_id') }}"
+                #                  addresses:
+                #                  - ip_netmask: {{ lookup('vars', networks_lower['tenant'] ~ '_ip') }}/{{ lookup('vars', networks_lower['tenant'] ~ '_cidr')}}
+                #                  members:
+                #                  - type: ovs_dpdk_port
+                #                    rx_queue: 1
+                #                    name: dpdkmgmt
+                #                    members:
+                #                    - type: sriov_vf
+                #                      device: nic2
+                #                      vfid: 2
+                #      
+                #                - type: ovs_user_bridge
+                #                  name: br-dpdk1
+                #                  use_dhcp: false
+                #                  mtu: 9000
+                #                  members:
+                #                  - type: ovs_dpdk_port
+                #                    driver: mlx5_core
+                #                    rx_queue: 4
+                #                    name: dpdk1
+                #                    members:
+                #                    - type: interface
+                #                      name: nic5
+                #                      mtu: 9000
+                #                      primary: true
+                #      
+                #                - type: ovs_user_bridge
+                #                  name: br-dpdk2
+                #                  ovs_extra: set open_vswitch . other_config:pmd-auto-lb="true" -- set open_vswitch . other_config:pmd-auto-lb-rebal-interval="1"
+                #                  use_dhcp: false
+                #                  mtu: 9000
+                #                  members:
+                #                  - type: ovs_dpdk_port
+                #                    name: dpdk2
+                #                    driver: mlx5_core
+                #                    rx_queue: 4
+                #                    members:
+                #                    - type: interface
+                #                      name: nic6
+                #                      mtu: 9000
+                #                      primary: true
